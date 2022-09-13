@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 import inquirer from 'inquirer';
+import { exec } from 'child_process';
 import * as fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import createDirectoryContents from './createDirectoryContents.js';
 import hydrateConfig from './hydrateConfig.js';
+import chalk from "chalk";
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -68,19 +70,65 @@ const QUESTIONS = [
   },
 ];
 
-inquirer.prompt(QUESTIONS).then(answers => {
-  const projectChoice = CHOICES_MAP[answers['project-choice']];
-  const projectName = answers['project-name'];
-  const projectPrivateKey = answers['project-deployment-key'];
-  const projectRPCURL = answers['project-rpc-url'];
+if(process.argv[2] === "deploy") {  
+  const compile_cmd = 'yarn hardhat compile';
+  const deploy_cmd = 'yarn hardhat deploy-zksync';
+  console.log(chalk.blue("Compiling..."));
+  var mainProcess = exec(compile_cmd);
+  mainProcess.stdout.on('data', function(data) {
+    console.log(data); 
+  });
 
-  const templatePath = `${__dirname}/templates/${projectChoice}`;
-  const spawn_path = `${CURR_DIR}/${projectName}`;
+  mainProcess.stderr.on('data', function(data) {
+    console.log(data);
+  });
 
-  fs.mkdirSync(spawn_path);
+  mainProcess.on('exit', function(code) {
+    if(code != 0){
+      console.log(chalk.red("Compilation failed."));
+      process.exit();
+    }
+    
+    console.log(chalk.blue("Deploying..."));
 
-  createDirectoryContents(templatePath, projectName);
-  
-  hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL);
+    // Deploy
+    var deployProcess = exec(deploy_cmd);
+    deployProcess.stdout.on('data', function(data) {
+      console.log(data); 
+    });
 
-});
+    deployProcess.stderr.on('data', function(data) {
+      console.log(data);
+    });
+
+    deployProcess.on('exit', function(dcode) {
+      if(dcode != 0){
+        console.log(chalk.red("Deployment failed."));
+        process.exit();
+      }
+    });
+  });
+
+
+
+} else if(process.argv[2] === "new"){
+  inquirer.prompt(QUESTIONS).then(answers => {
+    const projectChoice = CHOICES_MAP[answers['project-choice']];
+    const projectName = answers['project-name'];
+    const projectPrivateKey = answers['project-deployment-key'];
+    const projectRPCURL = answers['project-rpc-url'];
+
+    const templatePath = `${__dirname}/templates/${projectChoice}`;
+    const spawn_path = `${CURR_DIR}/${projectName}`;
+
+    fs.mkdirSync(spawn_path);
+
+    createDirectoryContents(templatePath, projectName);
+    
+    hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL);
+
+  });
+}
+else {
+  console.log("No command specified...")
+}

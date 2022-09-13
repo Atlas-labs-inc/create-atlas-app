@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "create-atlas-app": "./index.js"
+    "atlas-app": "./index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/leoroese/template-cli#readme",
   "dependencies": {
+    "chalk": "^5.0.1",
     "inquirer": "^8.1.0"
   },
   "devDependencies": {

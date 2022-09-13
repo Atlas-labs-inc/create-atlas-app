@@ -1,5 +1,8 @@
-# create-atlas-app
-Node cli tool to create boilerplate code for atlas smart contracts.
+# atlas-app
+Node.js CLI tool to create boilerplate code for Atlas smart contracts
+
+## Prerequisites
+Node.js, npm, yarn, and Docker must be installed to your computer
 
 ## Installation
 ```sh
@@ -8,7 +11,16 @@ cd create-atlas-app
 npm i -g
 ```
 ## Usage
-```
-create-atlas-app
-```
+1. Create new app
+    ```sh
+    atlas-app new
+    ```
+2. Install development dependencies 
+    ```sh
+    cd your-app && yarn
+    ```
+3. Deploy an Atlas app
+    ```sh
+    atlas-app deploy
+    ```
 
