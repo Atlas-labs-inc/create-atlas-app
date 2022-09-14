@@ -16,9 +16,9 @@ module.exports = {
     },
   },
   zkSyncDeploy: {
-    zkSyncNetwork: "http://ec2-184-72-69-110.compute-1.amazonaws.com:3050",
+    zkSyncNetwork: "$ATLAS_HTTP_RPC",
     ethNetwork: "goerli", // Can also be the RPC URL of the network (e.g. `https://goerli.infura.io/v3/<API_KEY>`)
-    account: "0xa86daed2bb5341cba34fd9c786bf09ec57e9e6b8d4f1428704ed428020d582e3"
+    account: "$PRIVATE_KEY"
   },
   networks: {
     hardhat: {
