@@ -14,7 +14,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const CHOICES_MAP = {
   'Create a greeter project': "greeter_example",
-  'Create an empty atlas app': "default"
+  'Create an empty atlas app': "default",
+  "Create an NFT project": 'dino-nft-hardhat'
 }
 const ATLAS_ASCII_LOGO = String.raw`
           _____                _____                    _____            _____                    _____          
