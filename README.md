@@ -6,9 +6,7 @@ Docker, Node, and yarn
 
 ## Installation
 ```sh
-git clone http://github.com/atlas-labs-inc/create-atlas-app
-cd create-atlas-app
-npm i -g
+npm i atlas-app -g
 ```
 ## Usage
 1. Create new app
