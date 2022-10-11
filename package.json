@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leoroese/template-cli.git"
+    "url": "git+https://github.com/Atlas-labs-inc/create-atlas-app.git"
   },
-  "author": "Leonardo Roese",
+  "author": "Cliff Syner",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/leoroese/template-cli/issues"
+    "url": "https://github.com/Atlas-labs-inc/create-atlas-app/issues"
   },
-  "homepage": "https://github.com/leoroese/template-cli#readme",
+  "homepage": "https://github.com/Atlas-labs-inc/create-atlas-app#readme",
   "dependencies": {
     "chalk": "^5.0.1",
     "inquirer": "^8.1.0"
