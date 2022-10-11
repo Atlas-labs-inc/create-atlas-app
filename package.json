@@ -1,5 +1,5 @@
 {
-  "name": "create-atlas-app",
+  "name": "atlas-app",
   "version": "1.0.0",
   "description": "Create boilerplate for an Atlas smart contract",
   "main": "index.js",
