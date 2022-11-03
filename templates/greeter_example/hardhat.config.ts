@@ -17,7 +17,7 @@ module.exports = {
   },
   zkSyncDeploy: {
     zkSyncNetwork: "$ATLAS_HTTP_RPC",
-    ethNetwork: "goerli", // Can also be the RPC URL of the network (e.g. `https://goerli.infura.io/v3/<API_KEY>`)
+    ethNetwork: "https://sepolia.infura.io/v3/a0648f7545334ce49d4e66fd6dfed41b", // _KEY>`)
     account: "$PRIVATE_KEY"
   },
   networks: {
