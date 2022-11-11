@@ -1,7 +1,7 @@
 {
   "name": "atlas-app",
   "version": "1.0.2",
-  "description": "Create boilerplate for an Atlas smart contract",
+  "description": "Deployment toolchain for Atlas smart contracts",
   "main": "index.js",
   "type": "module",
   "bin": {

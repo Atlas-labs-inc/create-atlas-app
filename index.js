@@ -72,8 +72,8 @@ const QUESTIONS = [
 ];
 
 if(process.argv[2] === "deploy") {  
-  const compile_cmd = 'yarn hardhat compile';
-  const deploy_cmd = 'yarn hardhat deploy-zksync';
+  const compile_cmd = 'npx hardhat compile';
+  const deploy_cmd = 'npx hardhat deploy-zksync';
   console.log(chalk.blue("Compiling..."));
   var mainProcess = exec(compile_cmd);
   mainProcess.stdout.on('data', function(data) {
@@ -128,6 +128,24 @@ if(process.argv[2] === "deploy") {
     
     hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL);
 
+  });
+} else if(process.argv[2] === "test"){
+  const test_cmd = 'npx hardhat test';
+  console.log(chalk.blue("Running tests..."));
+  var mainProcess = exec(test_cmd);
+  mainProcess.stdout.on('data', function(data) {
+    console.log(data); 
+  });
+
+  mainProcess.stderr.on('data', function(data) {
+    console.log(data);
+  });
+
+  mainProcess.on('exit', function(code) {
+    if(code != 0){
+      console.log(chalk.red("Tests failed."));
+      process.exit();
+    }
   });
 }
 else {
