@@ -8,6 +8,15 @@ import { fileURLToPath } from 'url';
 import createDirectoryContents from './createDirectoryContents.js';
 import hydrateConfig from './hydrateConfig.js';
 import chalk from "chalk";
+import open from 'open';
+import express from "express";
+import jwt_decode from "jwt-decode";
+import {
+  createHttpTerminator,
+} from 'http-terminator';
+import getPort from 'get-port';
+import ora from "ora";
+import netrc from 'node-netrc';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,8 +79,48 @@ const QUESTIONS = [
     message: 'Private Key (Must have Sepolia ETH):',
   },
 ];
+if(process.argv[2] === "login") {
+  if(process.argv[3] === "-i") {
+    // TODO: Interactive login
+    throw new Error("Interactive login not available");
+  }
+  const BASE_LOGIN_URL = "https://app.atlaszk.com/cli/login";
+  const app = express();
+  app.get('/cli', (req, res) => {
+    const token = req.query.token;
+    const decoded = jwt_decode(token);
+    if(decoded.type != "cli") {
+      console.log(chalk.red("Invalid token type"));
+      throw new Error();
+    }
+    if(decoded.sub === undefined) {
+      console.log(chalk.red("Login failed"));
+      throw new Error();
+    }
+    res.send({"status": true});
 
-if(process.argv[2] === "deploy") {  
+    netrc.update('atlaszk.com', {
+      login: decoded.sub,
+      password: token
+    });
+
+    spinner.succeed("Logged in as " + chalk.green(decoded.sub));
+    httpTerminator.terminate().then(() => {
+      process.exit();
+    });
+  });
+  
+  const port = await getPort();
+  const user_url = BASE_LOGIN_URL + "?cli_port=" + port;
+  console.log("Opening browser to", chalk.green(user_url));
+  open(user_url);
+  const spinner = ora('Waiting for login').start();
+  const server = app.listen(port);
+  const httpTerminator = createHttpTerminator({
+    server,
+  });
+
+} else if(process.argv[2] === "deploy") {  
   const compile_cmd = 'npx hardhat compile';
   const deploy_cmd = 'npx hardhat deploy-zksync';
   console.log(chalk.blue("Compiling..."));
@@ -149,5 +198,5 @@ if(process.argv[2] === "deploy") {
   });
 }
 else {
-  console.log("No command specified...")
+  console.log("Invalid command...")
 }
