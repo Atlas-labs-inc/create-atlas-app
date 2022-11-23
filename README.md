@@ -10,24 +10,29 @@ Deployment toolchain for Atlas smart contracts
 npm i atlas-app -g
 ```
 ## Usage
-1. Create new app
+1. Login to Atlas
+    ```sh
+    atlas-app login
+    ```
+
+2. Create new app
     ```sh
     atlas-app new
     ```
 
-2. Install development dependencies 
+3. Install development dependencies 
     ```sh
     cd your-app && npm i -f
     ```
 
-3. Test smart contracts
+4. Test smart contracts
 
     *Docker Desktop must be running*
     ```sh
     atlas-app test
     ```
 
-3. Deploy contracts to your chain
+5. Deploy contracts to your chain
 
     *Docker Desktop must be running*
     ```sh
