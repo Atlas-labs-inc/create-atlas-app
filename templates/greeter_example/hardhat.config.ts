@@ -19,7 +19,10 @@ module.exports = {
   zkSyncDeploy: {
     zkSyncNetwork: "$ATLAS_HTTP_RPC",
     ethNetwork: "https://sepolia.infura.io/v3/a0648f7545334ce49d4e66fd6dfed41b", // _KEY>`)
-    account: "$PRIVATE_KEY"
+    account: "$PRIVATE_KEY",
+  },
+  atlasConfig: {
+    blockchain_slug: "$ATLAS_BLOCKCHAIN_SLUG"
   },
   networks: {
     hardhat: {

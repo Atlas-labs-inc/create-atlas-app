@@ -17,6 +17,7 @@ import {
 import getPort from 'get-port';
 import ora from "ora";
 import netrc from 'node-netrc';
+import axios from "axios";
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -51,34 +52,60 @@ const ATLAS_ASCII_LOGO = String.raw`
                                                                                                                  
 `;
 const CONFIG_FILENAME = "hardhat.config.ts";
+const API_BASE = "https://api.atlaszk.com"
 
-const QUESTIONS = [
-  {
-    name: 'project-choice',
-    type: 'list',
-    message: `${ATLAS_ASCII_LOGO}\n\nWhat do you want do?`,
-    choices: Object.keys(CHOICES_MAP),
-  },
-  {
-    name: 'project-name',
-    type: 'input',
-    message: 'Project name:',
-    validate: function (input) {
-      if (/^([A-Za-z\-\\_\d])+$/.test(input)) return true;
-      else return 'Project name may only include letters, numbers, underscores and hashes.';
-    },
-  },
-  {
-    name: 'project-rpc-url',
-    type: 'input',
-    message: 'RPC URL:',
-  },
-  {
-    name: 'project-deployment-key',
-    type: 'input',
-    message: 'Private Key (Must have Sepolia ETH):',
-  },
-];
+let blockchain_cache = {};
+
+const getUserBlockchainChoices = async () => {
+  const auth = netrc('atlaszk.com');
+  const token = auth.password;
+  const response = await axios.get(`${API_BASE}/cli/blockchains`, {
+    headers: {
+    'Authorization': `Bearer ${token}`
+  }});
+  blockchain_cache = response.data.data;
+  let output = []
+  if(response.data.status == "success"){
+    const chain_data = response.data.data;
+    for (const chain of chain_data) {
+      if(chain.status === "Online") {
+        output.push(chain.name)
+      }
+    }
+  }
+  return output;
+}
+
+const blockchainNametoSlug = (name) => {
+  return name.toLowerCase().replace(/ /g, "-");
+}
+
+const getRPCFromCache = (slug) => {
+  for (const chain of blockchain_cache){
+    if(chain.slug === slug) {
+      return chain.rpcUrl;
+    }
+  }
+}
+
+const validateToken = async () => {
+  try {
+    const auth = netrc('atlaszk.com');
+    const token = auth.password;
+    const response = await axios.get(`${API_BASE}/cli/validate`, {
+      headers: {
+      'Authorization': `Bearer ${token}`
+    }});
+    if(response.data.status != "success"){
+      throw new Error("Invalid status");
+    }
+  }
+  catch {
+    console.log(chalk.red("Could not validate login details, retry login?"));
+    process.exit();
+  }
+}
+
 if(process.argv[2] === "login") {
   if(process.argv[3] === "-i") {
     // TODO: Interactive login
@@ -121,6 +148,7 @@ if(process.argv[2] === "login") {
   });
 
 } else if(process.argv[2] === "deploy") {  
+  await validateToken();
   const compile_cmd = 'npx hardhat compile';
   const deploy_cmd = 'npx hardhat deploy-zksync';
   console.log(chalk.blue("Compiling..."));
@@ -162,11 +190,41 @@ if(process.argv[2] === "login") {
 
 
 } else if(process.argv[2] === "new"){
+  await validateToken();
+  const QUESTIONS = [
+    {
+      name: 'project-choice',
+      type: 'list',
+      message: `${ATLAS_ASCII_LOGO}\n\nWhat do you want do?`,
+      choices: Object.keys(CHOICES_MAP),
+    },
+    {
+      name: 'project-name',
+      type: 'input',
+      message: 'Project name:',
+      validate: function (input) {
+        if (/^([A-Za-z\-\\_\d])+$/.test(input)) return true;
+        else return 'Project name may only include letters, numbers, underscores and hashes.';
+      },
+    },
+    {
+      name: 'project-slug',
+      type: 'list',
+      message: `Choose a blockchain (create one -> https://app.atlaszk.com/create):`,
+      choices: await getUserBlockchainChoices(),
+    },
+    {
+      name: 'project-deployment-key',
+      type: 'input',
+      message: 'Private Key (Must have Sepolia ETH):',
+    },
+  ];
   inquirer.prompt(QUESTIONS).then(answers => {
     const projectChoice = CHOICES_MAP[answers['project-choice']];
     const projectName = answers['project-name'];
     const projectPrivateKey = answers['project-deployment-key'];
-    const projectRPCURL = answers['project-rpc-url'];
+    const projectBlockchainSlug = blockchainNametoSlug(answers['project-slug']);
+    const projectRPCURL = getRPCFromCache(projectBlockchainSlug);
 
     const templatePath = `${__dirname}/templates/${projectChoice}`;
     const spawn_path = `${CURR_DIR}/${projectName}`;
@@ -175,10 +233,11 @@ if(process.argv[2] === "login") {
 
     createDirectoryContents(templatePath, projectName);
     
-    hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL);
+    hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL, projectBlockchainSlug);
 
   });
 } else if(process.argv[2] === "test"){
+  await validateToken();
   const test_cmd = 'npx hardhat test';
   console.log(chalk.blue("Running tests..."));
   var mainProcess = exec(test_cmd);
