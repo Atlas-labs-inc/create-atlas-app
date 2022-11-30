@@ -2,12 +2,13 @@ const { expect } = require("chai");
 const { utils, Wallet } = require("zksync-web3");
 const ethers = require("ethers");
 const { HardhatRuntimeEnvironment } = require("hardhat/types");
-const { Deployer } = require("@matterlabs/hardhat-zksync-deploy");
+const { AtlasDeployer } = require("../lib/atlas-deployer");
 
 
 describe("Greeting", function () {
     const wallet = new Wallet(hre.config.zkSyncDeploy.account);
-    const deployer = new Deployer(hre, wallet);
+    // Make sure we're not pushing contracts to Atlas
+    const deployer = new AtlasDeployer(hre, wallet, false);
     let greeterContract;
     it("Deploy greeter contract", async function () {
         const artifact = await deployer.loadArtifact("Greeter");

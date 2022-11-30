@@ -1,8 +1,7 @@
 import { utils, Wallet } from "zksync-web3";
 import * as ethers from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import axios from "axios";
+import { AtlasDeployer } from "../lib/atlas-deployer";
 
 // An example of a deploy script that will deploy and call a simple contract.
 export default async function (hre: HardhatRuntimeEnvironment) {
@@ -13,8 +12,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const wallet = new Wallet(hre.config.zkSyncDeploy.account);
 
   // Create deployer object and load the artifact of the contract we want to deploy.
-  const deployer = new Deployer(hre, wallet);
-  const artifact = await deployer.loadArtifact("Greeter");
+  const deployer = new AtlasDeployer(hre, wallet);
+  const artifact = await deployer.loadArtifact("FTXBridge");
 
   // Deposit some funds to L2 in order to be able to perform L2 transactions.
   const depositAmount = ethers.utils.parseEther("0.001");
@@ -34,13 +33,6 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Show the contract info.
   const contractAddress = greeterContract.address;
   console.log(`${artifact.contractName} was deployed to ${contractAddress}`);
-
-  axios.post('https://atlaszk.herokuapp.com/blockchain/contract', {
-    user_email: 'admin@atlaszk.com',
-    rpc_url: hre.config.zkSyncDeploy.zkSyncNetwork,
-    contract_name: "Greeter",
-    contract_address: contractAddress
-  })
 
   // Call the deployed contract.
   const greetingFromContract = await greeterContract.greet();
