@@ -1,11 +1,12 @@
 {
-  "name": "atlas-app",
+  "name": "atlas-toolkit",
   "version": "1.4.1",
   "description": "Deployment toolchain for Atlas smart contracts",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "atlas-app": "./index.js"
+    "atk": "./index.js",
+    "atlas-toolkit": "./index.js"
   },
   "scripts": {
     "test": "echo \"No test specified\""
