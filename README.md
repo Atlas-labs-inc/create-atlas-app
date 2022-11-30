@@ -1,4 +1,4 @@
-# atlas-app
+# atlas-toolkit
 Deployment toolchain for Atlas smart contracts
 
 ## Prerequisites
@@ -7,17 +7,17 @@ Deployment toolchain for Atlas smart contracts
 
 ## Installation
 ```sh
-npm i atlas-app -g
+npm i atlas-toolkit -g
 ```
 ## Usage
 1. Login to Atlas
     ```sh
-    atlas-app login
+    atlas-toolkit login
     ```
 
 2. Create new app
     ```sh
-    atlas-app new
+    atlas-toolkit new
     ```
 
 3. Install development dependencies 
@@ -29,12 +29,12 @@ npm i atlas-app -g
 
     *Docker Desktop must be running*
     ```sh
-    atlas-app test
+    atlas-toolkit test
     ```
 
 5. Deploy contracts to your chain
 
     *Docker Desktop must be running*
     ```sh
-    atlas-app deploy
+    atlas-toolkit deploy
     ```
