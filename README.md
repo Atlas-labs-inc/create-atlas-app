@@ -1,5 +1,5 @@
 # atlas-toolkit
-Deployment toolchain for Atlas smart contracts
+Deployment toolkit for Atlas smart contracts
 
 ## Prerequisites
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
