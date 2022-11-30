@@ -2,22 +2,23 @@
 Deployment toolchain for Atlas smart contracts
 
 ## Prerequisites
-1. Docker Desktop
+1. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 2. Node.js ^16.17.0
 
 ## Installation
 ```sh
 npm i atlas-toolkit -g
 ```
+
 ## Usage
 1. Login to Atlas
     ```sh
-    atlas-toolkit login
+    atk login
     ```
 
 2. Create new app
     ```sh
-    atlas-toolkit new
+    atk new
     ```
 
 3. Install development dependencies 
@@ -27,14 +28,15 @@ npm i atlas-toolkit -g
 
 4. Test smart contracts
 
-    *Docker Desktop must be running*
+    *[Docker Desktop](https://www.docker.com/products/docker-desktop/) must be running*
     ```sh
-    atlas-toolkit test
+    atk test
     ```
 
 5. Deploy contracts to your chain
 
-    *Docker Desktop must be running*
+    *[Docker Desktop](https://www.docker.com/products/docker-desktop/) must be running*
     ```sh
-    atlas-toolkit deploy
+    atk deploy
     ```
+*Note you can use `atlas-toolkit` or `atk` to run all commands*
