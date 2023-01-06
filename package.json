@@ -1,6 +1,6 @@
 {
   "name": "atlas-toolkit",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "Deployment toolchain for Atlas smart contracts",
   "main": "index.js",
   "type": "module",
