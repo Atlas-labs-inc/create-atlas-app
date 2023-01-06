@@ -18,7 +18,7 @@ module.exports = {
   },
   zkSyncDeploy: {
     zkSyncNetwork: "$ATLAS_HTTP_RPC",
-    ethNetwork: "https://sepolia.infura.io/v3/a0648f7545334ce49d4e66fd6dfed41b", // _KEY>`)
+    ethNetwork: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // _KEY>`)
     account: "$PRIVATE_KEY",
   },
   atlasConfig: {

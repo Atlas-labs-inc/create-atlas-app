@@ -216,7 +216,7 @@ if(process.argv[2] === "login") {
     {
       name: 'project-deployment-key',
       type: 'input',
-      message: 'Private Key (Must have Sepolia ETH):',
+      message: 'Private Key (Must have Goerli ETH):',
     },
   ];
   inquirer.prompt(QUESTIONS).then(answers => {
