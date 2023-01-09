@@ -18,6 +18,7 @@ import getPort from 'get-port';
 import ora from "ora";
 import netrc from 'node-netrc';
 import axios from "axios";
+import qs from "qs";
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -68,7 +69,7 @@ const getUserBlockchainChoices = async () => {
   if(response.data.status == "success"){
     const chain_data = response.data.data;
     for (const chain of chain_data) {
-      if(chain.status === "Online") {
+      if(chain.status === "Online" || chain.status === "Restarting") {
         output.push(chain.name)
       }
     }
@@ -107,46 +108,86 @@ const validateToken = async () => {
 }
 
 if(process.argv[2] === "login") {
-  if(process.argv[3] === "-i") {
-    // TODO: Interactive login
-    throw new Error("Interactive login not available");
+  if(process.argv[3] === "-i") {	
+	  inquirer.prompt([
+	  {
+		type: 'input',
+		name: 'username',
+		message: 'Email'
+	  },
+	  {
+		type: 'password',
+		name: 'password',
+		mask: '*',
+		message: 'Password'
+	  },
+	  ]).then(answers => {
+			const BASE_LOGIN_URL = `${API_BASE}/auth/cli/login`;
+			const data = qs.stringify({
+			  'username': answers.username,
+			  'password': answers.password,
+			  'interactive': 'true',
+			});
+			const config = {
+			  method: 'post',
+			  url: BASE_LOGIN_URL,
+			  headers: { 
+				'Content-Type': 'application/x-www-form-urlencoded'
+			  },
+			  data : data
+			};
+			axios(config)
+			  .then( response => {
+				netrc.update('atlaszk.com', {
+					login: answers.username,
+					password: response.data.token
+				}); 
+			  console.log(`${chalk.green("✔")} Logged in as ${chalk.green(answers.username)}`);
+			})		  
+			  .catch(function (error) {
+				
+			  console.log(`${chalk.red("Login failed, retry?")}`);
+		    });
+
+	});
   }
-  const BASE_LOGIN_URL = "https://app.atlaszk.com/cli/login";
-  const app = express();
-  app.get('/cli', (req, res) => {
-    const token = req.query.token;
-    const decoded = jwt_decode(token);
-    if(decoded.type != "cli") {
-      console.log(chalk.red("Invalid token type"));
-      throw new Error();
-    }
-    if(decoded.sub === undefined) {
-      console.log(chalk.red("Login failed"));
-      throw new Error();
-    }
-    res.send({"status": true});
+  else {
+	  const BASE_LOGIN_URL = "https://app.atlaszk.com/cli/login";
+	  const app = express();
+	  app.get('/cli', (req, res) => {
+		const token = req.query.token;
+		const decoded = jwt_decode(token);
+		if(decoded.type != "cli") {
+		  console.log(chalk.red("Invalid token type"));
+		  throw new Error();
+		}
+		if(decoded.sub === undefined) {
+		  console.log(chalk.red("Login failed"));
+		  throw new Error();
+		}
+		res.send({"status": true});
 
-    netrc.update('atlaszk.com', {
-      login: decoded.sub,
-      password: token
-    });
+		netrc.update('atlaszk.com', {
+		  login: decoded.sub,
+		  password: token
+		});
 
-    spinner.succeed("Logged in as " + chalk.green(decoded.sub));
-    httpTerminator.terminate().then(() => {
-      process.exit();
-    });
-  });
-  
-  const port = await getPort();
-  const user_url = BASE_LOGIN_URL + "?cli_port=" + port;
-  console.log("Opening browser to", chalk.green(user_url));
-  open(user_url);
-  const spinner = ora('Waiting for login').start();
-  const server = app.listen(port);
-  const httpTerminator = createHttpTerminator({
-    server,
-  });
-
+		spinner.succeed("Logged in as " + chalk.green(decoded.sub));
+		httpTerminator.terminate().then(() => {
+		  process.exit();
+		});
+	  });
+	  
+	  const port = await getPort();
+	  const user_url = BASE_LOGIN_URL + "?cli_port=" + port;
+	  console.log("Opening browser to", chalk.green(user_url));
+	  open(user_url);
+	  const spinner = ora('Waiting for login').start();
+	  const server = app.listen(port);
+	  const httpTerminator = createHttpTerminator({
+		server,
+	  });
+  }
 } else if(process.argv[2] === "deploy") {  
   await validateToken();
   const compile_cmd = 'npx hardhat compile';

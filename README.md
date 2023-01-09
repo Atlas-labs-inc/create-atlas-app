@@ -15,7 +15,10 @@ npm i atlas-toolkit -g
     ```sh
     atk login
     ```
-
+   Alternatively use interactive login (browserless)
+   ```sh
+   atk login -i
+   ```
 2. Create new app
     ```sh
     atk new
