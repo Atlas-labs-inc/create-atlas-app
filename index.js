@@ -19,6 +19,7 @@ import ora from "ora";
 import netrc from 'node-netrc';
 import axios from "axios";
 import qs from "qs";
+import * as ethers from 'ethers';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -104,6 +105,51 @@ const validateToken = async () => {
   catch {
     console.log(chalk.red("Could not validate login details, retry login?"));
     process.exit();
+  }
+}
+
+
+const checkBalance = (address, spinner) => {
+  const provider = new ethers.providers.JsonRpcProvider('https://testnet.atlaszk.com');
+  let balance = null;
+  let ethBalance = null;
+  const checkBalanceInterval = setInterval(() => {
+    provider.getBalance(address).then((res) => {
+      balance = res;
+      ethBalance = ethers.utils.formatEther(balance);
+      if (parseFloat(ethBalance) >= 1) {
+		if (spinner != undefined) {
+			spinner.succeed("Funds received, Happy Hacking!");
+		}
+        clearInterval(checkBalanceInterval);
+      }
+    });
+  }, 1000);
+}
+
+const requestFundedAccount = async (address) => {
+  // Generate a new wallet
+  try {
+    const auth = netrc('atlaszk.com');
+    const token = auth.password;
+    
+	
+	const response = await axios.post(`${API_BASE}/cli/faucet`, null, {
+	  params: {
+		address: address,
+	  },
+	  headers: {
+		'Authorization': `Bearer ${token}`
+	  }
+	});
+
+
+    if(response.data.status != "success"){
+      throw new Error("Failed to fund account");
+    }
+  }
+  catch(e) {
+    console.log(chalk.red("Failed to fund account, please notify the Atlas team if this issue persists."));
   }
 }
 
@@ -232,6 +278,9 @@ if(process.argv[2] === "login") {
 
 } else if(process.argv[2] === "new"){
   await validateToken();
+  const projectDevWallet = ethers.Wallet.createRandom();
+  await requestFundedAccount(projectDevWallet.address);
+	
   const QUESTIONS = [
     {
       name: 'project-choice',
@@ -254,16 +303,10 @@ if(process.argv[2] === "login") {
       message: `Choose a blockchain (create one -> https://app.atlaszk.com/create):`,
       choices: await getUserBlockchainChoices(),
     },
-    {
-      name: 'project-deployment-key',
-      type: 'input',
-      message: 'Private Key (Must have Goerli ETH):',
-    },
   ];
   inquirer.prompt(QUESTIONS).then(answers => {
     const projectChoice = CHOICES_MAP[answers['project-choice']];
     const projectName = answers['project-name'];
-    const projectPrivateKey = answers['project-deployment-key'];
     const projectBlockchainSlug = blockchainNametoSlug(answers['project-slug']);
     const projectRPCURL = getRPCFromCache(projectBlockchainSlug);
 
@@ -274,8 +317,11 @@ if(process.argv[2] === "login") {
 
     createDirectoryContents(templatePath, projectName);
     
-    hydrateConfig(spawn_path, CONFIG_FILENAME, projectPrivateKey, projectRPCURL, projectBlockchainSlug);
+    hydrateConfig(spawn_path, CONFIG_FILENAME, projectDevWallet.privateKey, projectRPCURL, projectBlockchainSlug);
 
+	const spinner = ora('Requesting funds from faucet').start();
+	checkBalance(projectDevWallet.address, spinner);
+	
   });
 } else if(process.argv[2] === "test"){
   await validateToken();

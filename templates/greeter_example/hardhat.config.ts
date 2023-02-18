@@ -18,8 +18,8 @@ module.exports = {
   },
   zkSyncDeploy: {
     zkSyncNetwork: "$ATLAS_HTTP_RPC",
-    ethNetwork: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // _KEY>`)
-    account: "$PRIVATE_KEY",
+    ethNetwork: "https://testnet.atlaszk.com",
+	account: "$PRIVATE_KEY",
   },
   atlasConfig: {
     blockchain_slug: "$ATLAS_BLOCKCHAIN_SLUG"
